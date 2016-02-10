@@ -243,6 +243,17 @@ public class StringPanel extends JPanel {
 				}
 			}
 	
+	public void keyPressed(KeyEvent e) {
+
+	    int key = e.getKeyCode();
+
+	    if (key == KeyEvent.VK_LEFT) {
+	        screen.setText("YOO");
+	    }
+
+	    
+	    }
+	
 	class ListentoBack implements ActionListener{
 		public void actionPerformed(ActionEvent arg){
 			
