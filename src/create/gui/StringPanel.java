@@ -17,10 +17,11 @@ import java.awt.Font;
 
 
 public class StringPanel extends JPanel {
+	
 	String output ="";
 	double ans=0;
 	boolean operanD=false;
-	char state='n';
+	char state;
 	double operand=0;
 	boolean floating=false;
 	String aftDec="";
@@ -53,6 +54,7 @@ public class StringPanel extends JPanel {
 	private JButton multiply;
 	private JButton subtract;
 	private JButton divide;
+	private JButton delete;
 	
 	public StringPanel() {
 		setBackground(Color.CYAN);
@@ -131,6 +133,11 @@ public class StringPanel extends JPanel {
 		currentLayout.putConstraint(SpringLayout.WEST, divide, 13, SpringLayout.EAST, six);
 		currentLayout.putConstraint(SpringLayout.NORTH, divide, 0, SpringLayout.NORTH, four);
 		divide.addActionListener(new ListentoDivide());
+		
+		delete=new JButton("DEL");
+		currentLayout.putConstraint(SpringLayout.NORTH, delete, 0, SpringLayout.NORTH, seven);
+		currentLayout.putConstraint(SpringLayout.WEST, delete, 73, SpringLayout.EAST, nine);
+		delete.addActionListener(new ListentoBack());
 		
 		setupPanel();
 		
@@ -236,8 +243,77 @@ public class StringPanel extends JPanel {
 				}
 			}
 	
+	class ListentoBack implements ActionListener{
+		public void actionPerformed(ActionEvent arg){
+			
+			
+
+			if(floating){
+				
+				if(aftDec.length()==0){
+					floating=false;
+					output =output.substring(0,output.length()-1);
+
+				}
+					
+				else if(aftDec.length()==1){
+					aftDec="";
+					output =output.substring(0,output.length()-1);
+
+				}
+				
+				else{
+					aftDec=aftDec.substring(0, aftDec.length()-1);
+					output=output.substring(0,output.length()-1);
+				}
+				
+				screen.setText(output);
+					
+			}
+			
+			else {
+				
+				
+				if(operanD){
+					
+					if(operand<=9){					
+					 output="";
+					 operand=0;
+					 screen.setText("0");
+					}
+					
+					else{
+						output =output.substring(0,output.length()-1);
+						screen.setText(output);
+					operand=Double.parseDouble(output);
+					}
+				}
+				
+			
+			else{
+				if(ans<=9)	{			
+					output="";
+					screen.setText("0");
+					ans=0;
+				}
+				else{
+					output =output.substring(0,output.length()-1);
+				ans=Double.parseDouble(output);
+				screen.setText(output);
+
+				}
+			}
+			}
+			
+			}
+		}
+	
+	
 	
 	void addZero(){
+		
+		
+		
 		if(floating)
 			aftDec+="0";
 				
@@ -254,6 +330,9 @@ public class StringPanel extends JPanel {
 
 
 	void addOne(){
+		
+		
+		
 		if(floating)
 			aftDec+="1";
 		
@@ -268,6 +347,8 @@ public class StringPanel extends JPanel {
 	}
 
 	void addTwo(){
+		
+		
 		if(floating)
 			aftDec+="2";
 		
@@ -283,6 +364,9 @@ public class StringPanel extends JPanel {
 
 
 	void addThree(){
+		
+		
+		
 		if(floating)
 			aftDec+="3";
 		
@@ -298,7 +382,8 @@ public class StringPanel extends JPanel {
 
 	void addFour(){
 
-
+		
+		
 		if(floating)
 			aftDec+="4";
 		
@@ -312,6 +397,7 @@ public class StringPanel extends JPanel {
 	}
 
 	void addFive(){
+		
 		if(floating)
 			aftDec+="5";
 		
@@ -325,6 +411,7 @@ public class StringPanel extends JPanel {
 	}
 
 	void addSix(){
+		
 		if(floating)
 			aftDec+="6";
 		
@@ -340,6 +427,7 @@ public class StringPanel extends JPanel {
 	}
 
 	void addSeven(){
+		
 		if(floating)
 			aftDec+="7";
 		
@@ -353,6 +441,7 @@ public class StringPanel extends JPanel {
 	}
 
 	void addEight(){
+		
 		if(floating)
 			aftDec+="8";
 		
@@ -368,6 +457,7 @@ public class StringPanel extends JPanel {
 
 
 	void addNine(){
+		
 		if(floating)
 			aftDec+="9";
 		
@@ -456,7 +546,7 @@ public class StringPanel extends JPanel {
 		if(operanD)
 			equal();
 		
-		if(!aftDec.equals(""))
+		if(floating)
 			ans+=Double.parseDouble("0."+aftDec);
 		
 		aftDec="";
@@ -471,33 +561,39 @@ public class StringPanel extends JPanel {
 	}
 	
 	public void equal(){
-		if(!aftDec.equals("") && operanD)
+		if(floating && operanD)
 			operand+=Double.parseDouble("0."+aftDec);
 			
-			else if(!aftDec.equals(""))
+			else if(floating)
 				ans+=Double.parseDouble("0."+aftDec);
 			
 			//System.out.println(aftDec);
 			
 			switch(state){
 			case 'a':ans+=operand;
-			screen.setText(Double.toString(ans));
 			break;
 			
-			case 'm':ans*=operand;screen.setText(Double.toString(ans));
+			case 'm':ans*=operand;
 			break;
 			
-			case 's':ans-=operand;screen.setText(Double.toString(ans));
+			case 's':ans-=operand;
 			break;
 			
-			case 'd':ans/=operand;screen.setText(Double.toString(ans));
+			case 'd':ans/=operand;
 			break;
 			
-			case 'n' : screen.setText(Double.toString(ans));
-			break;
 			}
+			
+			if(ans%1==0)
+			 output=Integer.toString((int)ans);
+			else
+				output=Double.toString(ans);
+			
+			screen.setText(output);
+			
 			calc=true;
-			state='n';
+			operanD=false;
+			
 	}
 	private void setupPanel(){
 			this.add(screen);
@@ -519,6 +615,7 @@ public class StringPanel extends JPanel {
 			this.add(multiply);
 			this.add(subtract);
 			this.add(divide);
+			this.add(delete);
 			
 		currentLayout.putConstraint(SpringLayout.EAST, nine, 0, SpringLayout.EAST, three);
 		currentLayout.putConstraint(SpringLayout.WEST, six, 0, SpringLayout.WEST, three);
