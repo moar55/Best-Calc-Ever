@@ -10,6 +10,9 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -19,10 +22,10 @@ import java.awt.Font;
 public class StringPanel extends JPanel {
 	
 	String output ="";
-	double ans=0;
+	BigDecimal ans=BigDecimal.ZERO;
 	boolean operanD=false;
 	char state;
-	double operand=0;
+	BigDecimal operand=BigDecimal.ZERO;
 	boolean floating=false;
 	String aftDec="";
 	boolean calc=false;
@@ -55,6 +58,11 @@ public class StringPanel extends JPanel {
 	private JButton subtract;
 	private JButton divide;
 	private JButton delete;
+	private JButton sin; 
+	private JButton cos;
+	private JButton tan;
+	private JButton fact;
+	private JButton pi;
 	
 	public StringPanel() {
 		setBackground(Color.CYAN);
@@ -139,6 +147,31 @@ public class StringPanel extends JPanel {
 		currentLayout.putConstraint(SpringLayout.WEST, delete, 73, SpringLayout.EAST, nine);
 		delete.addActionListener(new ListentoBack());
 		
+		sin=new JButton ("sin");
+		currentLayout.putConstraint(SpringLayout.NORTH, sin, 0, SpringLayout.NORTH, seven);
+		currentLayout.putConstraint(SpringLayout.WEST, sin, 9, SpringLayout.EAST, delete);
+		sin.addActionListener(new ListentoSin());
+	
+		cos=new JButton("cos");
+		currentLayout.putConstraint(SpringLayout.NORTH, cos, 0, SpringLayout.NORTH, four);
+		currentLayout.putConstraint(SpringLayout.WEST, cos, 0, SpringLayout.WEST, sin);
+		cos.addActionListener(new ListentoCos());
+		
+		tan=new JButton("tan");
+		currentLayout.putConstraint(SpringLayout.NORTH, tan, 0, SpringLayout.NORTH, one);
+		currentLayout.putConstraint(SpringLayout.WEST, tan, 0, SpringLayout.WEST, sin);
+		tan.addActionListener(new ListentoTan());
+		
+		fact=new JButton("!");
+		currentLayout.putConstraint(SpringLayout.NORTH, fact, 0, SpringLayout.NORTH, seven);
+		currentLayout.putConstraint(SpringLayout.WEST, fact, 0, SpringLayout.WEST, add);
+		currentLayout.putConstraint(SpringLayout.EAST, fact, 55, SpringLayout.WEST, add);
+		fact.addActionListener(new ListentoFact());
+		
+		pi=new JButton("Π");
+		currentLayout.putConstraint(SpringLayout.NORTH, pi, 0, SpringLayout.NORTH, zero);
+		currentLayout.putConstraint(SpringLayout.EAST, pi, 0, SpringLayout.EAST, sin);
+		pi.addActionListener(new ListentoPi());
 		setupPanel();
 		
 		screen.setText("0");
@@ -147,7 +180,6 @@ public class StringPanel extends JPanel {
 	class ListentoZero implements ActionListener{
 		public void actionPerformed(ActionEvent arg) {
 			addZero();
-			System.out.println("pressed");
 			resetButtons();
 			
 		}
@@ -235,11 +267,67 @@ public class StringPanel extends JPanel {
 
 	
 	
+	class ListentoSin implements ActionListener{
+		public void actionPerformed(ActionEvent arg){
+			if(!operanD)
+			state='S';
+			try {
+				equal();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
+		
+	class ListentoCos implements ActionListener{
+			public void actionPerformed(ActionEvent arg){
+				if(!operanD)
+				state='c';
+				try {
+					equal();
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+	}
+	
+	class ListentoTan implements ActionListener{
+				public void actionPerformed(ActionEvent arg){
+					if(!operanD)
+					state='t';
+					try {
+						equal();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+	}
+	
+	class ListentoFact implements ActionListener{
+					public void actionPerformed(ActionEvent arg){
+						if(!operanD)
+						state='f';
+						
+						try {
+							equal();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+	}
+	
 	class ListentoPoint implements ActionListener{
 		public void actionPerformed(ActionEvent arg) {
+			if(!floating){
 			floating=true;
 			screen.setText(output+=".");
-				
+			}	
 				}
 			}
 	
@@ -257,7 +345,8 @@ public class StringPanel extends JPanel {
 	class ListentoBack implements ActionListener{
 		public void actionPerformed(ActionEvent arg){
 			
-			
+			DecimalFormat h=new DecimalFormat();
+			h.setParseBigDecimal(true);
 
 			if(floating){
 				
@@ -287,29 +376,40 @@ public class StringPanel extends JPanel {
 				
 				if(operanD){
 					
-					if(operand<=9){					
+					if(operand.compareTo(BigDecimal.valueOf(9))<=0){					
 					 output="";
-					 operand=0;
+					 operand=BigDecimal.ZERO;
 					 screen.setText("0");
 					}
 					
 					else{
 						output =output.substring(0,output.length()-1);
 						screen.setText(output);
-					operand=Double.parseDouble(output);
+						
+					try {
+						operand=(BigDecimal)h.parse(output);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					}
 				}
 				
 			
 			else{
-				if(ans<=9)	{			
+				if(ans.compareTo(BigDecimal.valueOf(9))<=0)	{			
 					output="";
 					screen.setText("0");
-					ans=0;
+					ans=BigDecimal.ZERO;
 				}
 				else{
 					output =output.substring(0,output.length()-1);
-				ans=Double.parseDouble(output);
+					try {
+						ans=(BigDecimal) h.parse(output);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				screen.setText(output);
 
 				}
@@ -329,11 +429,11 @@ public class StringPanel extends JPanel {
 			aftDec+="0";
 				
 				if(!operanD)
-					ans=(ans*10);
+					ans=ans.multiply(BigDecimal.TEN);
 					
 					
 				else
-				operand=(operand*10);
+				operand=operand.multiply(BigDecimal.TEN);
 			
 				
 				screen.setText(output+="0");
@@ -348,10 +448,10 @@ public class StringPanel extends JPanel {
 			aftDec+="1";
 		
 		else if(!operanD)
-			ans=(ans*10)+1;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.ONE);
 			
 		else
-		operand=(operand*10)+1;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.ONE);
 
 		screen.setText(output+="1");
 
@@ -364,10 +464,10 @@ public class StringPanel extends JPanel {
 			aftDec+="2";
 		
 		else if(!operanD)
-			ans=(ans*10)+2;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(2));
 			
 		else
-		operand=(operand*10)+2;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(2));
 
 		screen.setText(output+="2");
 
@@ -382,10 +482,10 @@ public class StringPanel extends JPanel {
 			aftDec+="3";
 		
 		else if(!operanD)
-			ans=(ans*10)+3;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(3));
 			
 		else
-		operand=(operand*10)+3;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(3));
 
 		screen.setText(output+="3");
 
@@ -399,10 +499,10 @@ public class StringPanel extends JPanel {
 			aftDec+="4";
 		
 		else if(!operanD)
-			ans=(ans*10)+4;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(4));
 			
 		else
-		operand=(operand*10)+4;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(4));
 
 		screen.setText(output+="4");
 	}
@@ -413,10 +513,10 @@ public class StringPanel extends JPanel {
 			aftDec+="5";
 		
 		else if(!operanD)
-			ans=(ans*10)+5;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(5));
 			
 		else
-		operand=(operand*10)+5;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(5));
 
 		screen.setText(output+="5");
 	}
@@ -427,10 +527,10 @@ public class StringPanel extends JPanel {
 			aftDec+="6";
 		
 		else if(!operanD)
-			ans=(ans*10)+6;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(6));
 			
 		else
-		operand=(operand*10)+6;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(6));
 
 		screen.setText(output+="6");
 			
@@ -443,10 +543,10 @@ public class StringPanel extends JPanel {
 			aftDec+="7";
 		
 		else if(!operanD)
-			ans=(ans*10)+7;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(7));
 			
 		else
-		operand=(operand*10)+7;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(7));
 
 		screen.setText(output+="7");
 	}
@@ -457,10 +557,10 @@ public class StringPanel extends JPanel {
 			aftDec+="8";
 		
 		else if(!operanD)
-			ans=(ans*10)+8;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(8));
 			
 		else
-		operand=(operand*10)+8;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(8));
 
 		screen.setText(output+="8");
 
@@ -473,21 +573,33 @@ public class StringPanel extends JPanel {
 			aftDec+="9";
 		
 		else if(!operanD)
-			ans=(ans*10)+9;
+			ans=(ans.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(9));
 			
 		else
-		operand=(operand*10)+9;
+		operand=(operand.multiply(BigDecimal.TEN)).add(BigDecimal.valueOf(9));
 
 		screen.setText(output+="9");
 	}
 
 
 	
+	Double recFact(Double b){
+		
+		if(b==0)
+			return 1.0;
+		
+		return b*recFact(b-1);
+	}
 	
 	class ListentoAdd implements ActionListener	{
 		public void actionPerformed(ActionEvent arg) {
 			if(!addB){
-			allOperators();
+			try {
+				allOperators();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			output="";
 			state='a';
 			addB=true;
@@ -499,7 +611,12 @@ public class StringPanel extends JPanel {
 	class ListentoMultiply implements ActionListener	{
 		public void actionPerformed(ActionEvent arg) {
 			if(!multB){
-			allOperators();
+			try {
+				allOperators();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			output="";
 			state='m';
 			multB=true;
@@ -511,7 +628,12 @@ public class StringPanel extends JPanel {
 	class ListentoSubtract implements ActionListener	{
 		public void actionPerformed(ActionEvent arg) {
 			if(!subB){
-			allOperators();
+			try {
+				allOperators();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			output="";
 			state='s';
 			subB=true;
@@ -522,7 +644,12 @@ public class StringPanel extends JPanel {
 	class ListentoDivide implements ActionListener	{
 		public void actionPerformed(ActionEvent arg) {
 			if(!divB){
-			allOperators();
+			try {
+				allOperators();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			output="";
 			state='d';
 			divB=true;
@@ -532,19 +659,39 @@ public class StringPanel extends JPanel {
 	 
 	class ListentoEquals implements ActionListener	{
 		public void actionPerformed(ActionEvent arg) {
-			equal();
+			try {
+				equal();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		
 	}
 	
+	class ListentoPi implements ActionListener{
+		public void actionPerformed(ActionEvent arg){
+			if(operanD){
+				operand=BigDecimal.valueOf(Math.PI);
+				output=operand.toString();
+			}
+			
+			else{
+				ans=BigDecimal.valueOf(Math.PI);
+				output=ans.toString();
+			}
+			screen.setText(output);
+		}
+	}
+	
 	class ListentoClear implements ActionListener{
 		public void actionPerformed(ActionEvent arg){
 			output ="";
-			ans=0;
+			ans=BigDecimal.ZERO;
 			operanD=false;
 			state='n';
-			operand=0;
+			operand=BigDecimal.ZERO;
 			floating=false;
 			aftDec="";
 			screen.setText("0");
@@ -553,52 +700,76 @@ public class StringPanel extends JPanel {
 	}
 		
 	
-	public void allOperators(){
+	public void allOperators() throws ParseException{
 		if(operanD)
 			equal();
 		
-		if(floating)
-			ans+=Double.parseDouble("0."+aftDec);
+		DecimalFormat h=new DecimalFormat();
+		h.setParseBigDecimal(true);
 		
+		if(floating){
+			
+			ans=ans.add((BigDecimal)h.parse("0."+aftDec));
+		}
 		aftDec="";
 		operanD=true;
 		
 		floating=false;
-		operand=0;
+		operand=BigDecimal.ZERO;
 	}
 	
 	public void resetButtons(){
 		addB=false;multB=false;subB=false;divB=false;
 	}
 	
-	public void equal(){
+	public void equal() throws ParseException{
+		DecimalFormat h=new DecimalFormat();
+		h.setParseBigDecimal(true);
+		
 		if(floating && operanD)
-			operand+=Double.parseDouble("0."+aftDec);
+			operand=operand.add((BigDecimal)h.parse("0."+aftDec));
 			
 			else if(floating)
-				ans+=Double.parseDouble("0."+aftDec);
+				ans=ans.add((BigDecimal)h.parse("0."+aftDec));
 			
 			//System.out.println(aftDec);
 			
 			switch(state){
-			case 'a':ans+=operand;
+			
+			case 'a':ans=ans.add(operand);
 			break;
 			
-			case 'm':ans*=operand;
+			case 'm':ans=ans.multiply(operand);
 			break;
 			
-			case 's':ans-=operand;
+			case 's':ans=ans.subtract(operand);
 			break;
 			
-			case 'd':ans/=operand;
+			case 'd':ans=BigDecimal.valueOf(ans.doubleValue()/operand.doubleValue());
+			break;
+			
+			case 'S': ans=BigDecimal.valueOf(Math.round((Math.sin(ans.doubleValue())*Math.pow(10, 12))/Math.pow(10, 12)));
+			break;
+			
+			case 'c' : ans=BigDecimal.valueOf(Math.round(Math.cos(ans.doubleValue())*Math.pow(10, 12))/Math.pow(10, 12));
+			break;
+			
+			case 't' : ans=BigDecimal.valueOf(Math.round(Math.tan(ans.doubleValue()))*Math.pow(10, 12)/Math.pow(10, 12));
+			break;
+			
+			case 'f': ans=BigDecimal.valueOf(recFact(ans.doubleValue()));
 			break;
 			
 			}
 			
-			if(ans%1==0)
-			 output=Integer.toString((int)ans);
+		/*	if(!(ans.divide(BigDecimal.ONE).equals(ans))){
+			 output=Integer.toString(ans.intValue());
+			}
+			
 			else
-				output=Double.toString(ans);
+				*/
+			
+				output=ans.toString();
 			
 			screen.setText(output);
 			
@@ -627,6 +798,11 @@ public class StringPanel extends JPanel {
 			this.add(subtract);
 			this.add(divide);
 			this.add(delete);
+			this.add(sin);
+			this.add(cos);
+			this.add(tan);
+			this.add(fact);
+			this.add(pi);
 			
 		currentLayout.putConstraint(SpringLayout.EAST, nine, 0, SpringLayout.EAST, three);
 		currentLayout.putConstraint(SpringLayout.WEST, six, 0, SpringLayout.WEST, three);
