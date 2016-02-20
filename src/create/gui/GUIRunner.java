@@ -7,6 +7,8 @@ public class GUIRunner {
 		StringFrame st=new StringFrame();
 		st.start();
 		
+		//dude
+		
 	}
 
 }
